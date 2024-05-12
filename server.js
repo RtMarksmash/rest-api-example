@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(morgan('dev'));
 
-const products = [];
+let products = [];
 
 app.get('/products', (req, res) => {
     res.send(products)
@@ -23,13 +23,44 @@ app.post('/products', (req, res) => {
 
 })
 
-app.put('/products', (req, res) => {
-    res.send('editando productos')
+app.put('/products/:id', (req, res) => {
+
+    console.log(req.params.id)
+    const newData = req.body
+    const foundProduct = products.find((products) => (products.id === parseInt(req.params.id)));
+    console.log(foundProduct)
+
+    if (!foundProduct) {
+        return res.status(404).json({
+            "mensaje": "no encontrado su producto"
+        })
+    };
+
+    products = products.map((product) => (product.id === parseInt(req.params.id) ? {...product, ...newData } : product))
+
+
+    res.json({
+        "message": "product update succesfully"
+    })
 })
 
-app.delete('/products', (req, res) => {
-    res.send('borrando productos')
+app.delete('/products/:id', (req, res) => {
+
+    console.log(req.params.id)
+    const productFind = products.find((product) => (product.id == parseInt(req.params.id)))
+    console.log(productFind)
+
+    if (!productFind) {
+        return res.status(404).json({
+            "menssage": "no se encontro"
+        })
+    }
+
+    products = products.filter((product) => (product.id !== parseInt(req.params.id)));
+
+    res.sendStatus(204);
 })
+
 
 app.get('/products/:id', (req, res) => {
     console.log(req.params.id)
